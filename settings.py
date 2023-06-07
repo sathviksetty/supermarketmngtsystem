@@ -1,0 +1,8 @@
+outlet=""
+operator=""
+manager=""
+mydb=""
+mycur=""
+initial=""
+passwd=""
+active=""

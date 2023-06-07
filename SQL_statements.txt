@@ -1,0 +1,120 @@
+Ratnadeep Order Management System (ROMS)
+=================================
+MySQL DB/Schema "ROMSDB" contains 10 tables as below :
+ 1. outlets
+ 2. operators
+ 3. suppliers
+ 4. products
+ 5. customers
+ 6. purchases 
+ 7. stock 
+ 8. sales_txns 
+ 9. sales_details
+10. auditlog
+
+create schema romsdb  
+use romsdb; 
+
+create table outlets (
+id char(4) primary key, 
+city varchar(20) not null, 
+location varchar(20), 
+manager varchar(30), 
+phone varchar(15),
+created_time datetime
+);
+
+create table operators (
+id char(4) primary key, 
+name varchar(40),
+userid varchar(25) not null, 
+pwd varchar(12) not null,
+manager boolean default false,
+initial_pwd boolean default true,
+active boolean default true,
+created_time datetime
+);
+
+create table auditlog (
+audit_id int auto_increment primary key,
+operator_id char(4),
+action varchar(6),
+affected_userid varchar(25),
+action_time datetime,
+foreign key (operator_id) references operators(id)
+);
+
+create table suppliers (
+id char(4) primary key, 
+name varchar(40), 
+phone varchar(15) not null, 
+email varchar(30),
+created_time datetime
+);
+
+create table customers (
+phone varchar(15) not null primary key, 
+name varchar(40), 
+dob date,
+created_time datetime
+);
+
+create table products ( 
+id char(6) primary key, 
+product_name varchar(25) not null,
+supplier_id char(4) not null,
+created_time datetime,
+foreign key (supplier_id) references suppliers(id)
+);
+
+create table purchases (
+id int not null auto_increment primary key, 
+outlet_id char(4) ,		
+product_id char(6) , 
+purchased_qty int not null, 
+unit_price decimal(6,2) not null,
+created_time datetime,
+foreign key (outlet_id) references outlets(id),
+foreign key (product_id) references products(id)
+);
+
+create table stock (
+outlet_id char(4) , 
+product_id char(6) ,  
+available_qty decimal(10,2), 
+threshold_qty decimal(10,2) not null, 
+order_qty decimal(10,2) not null,
+unit_price decimal(10,2) not null,
+order_placed boolean default false,
+primary key(outlet_id, product_id),
+foreign key (outlet_id) references outlets(id),
+foreign key (product_id) references products(id)
+);
+
+create table sales_txns (
+id int auto_increment primary key,
+outlet_id char(4), 
+operator_id char(4), 
+customer_phone varchar(15), 
+tot_amount decimal(10,2),
+payment_mode char(4) not null, 
+paid_time datetime,
+foreign key (outlet_id) references outlets(id), 
+foreign key (operator_id) references operators(id), 
+foreign key (customer_phone) references customers(phone)
+);
+
+create table sales_details (
+id int auto_increment primary key, 
+txn_id int,
+product_id char(6), 
+sold_qty decimal(10,2) not null, 
+unit_price decimal(6,2),
+amount decimal(10,2), 
+foreign key (txn_id) references sales_txns(id),
+foreign key (product_id) references products(id)
+);
+
+ALTER TABLE sales_txns AUTO_INCREMENT = 100; 
+ALTER TABLE sales_details AUTO_INCREMENT = 1; 
+
